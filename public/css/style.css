@@ -1,0 +1,336 @@
+body{
+    font-family: Calibri;
+}
+
+#joueur{
+    display: none;
+    border: 1px solid green;
+    margin: auto;
+    width: 300px;
+    padding: 10px;
+}
+
+#monForm{
+    margin-top: 70px;
+}
+.buttonMenu{
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    background-color: #cfcfcf;
+}
+
+.buttonMenu:hover{
+    background-color: #9e9e9e;
+}
+
+#divConnexion{
+    margin: auto;
+    width: 190px;
+}
+
+#divConnexion input[type="text"], #password{
+    padding: 10px;
+    border: 1px solid black;
+}
+
+#divConnexion input[type="submit"]{
+    margin-top: 10px;
+    margin-bottom: 15px;
+    background-color: red;
+    border: none;
+    padding: 10px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#divConnexion input[type="submit"]:hover{
+    background-color: rgb(196, 3, 3);
+
+}
+
+.buttonAvatar{
+    cursor: pointer;
+}
+.buttonAvatar:hover{
+   opacity: 0.7;
+}
+
+#menu{
+    list-style-type: none;
+    margin-left: -85px;
+    position: absolute;
+}
+
+#menu li{
+    float: left;
+    margin-right: 20px;
+}
+
+#divScoresDesJoueurs{
+    display: none;
+    margin: auto;
+    width: 20%;
+    margin-top: 250px;
+    text-align: center;
+}
+
+#afficheRegleDuJeu{
+    display: none;
+    margin: auto;
+    width: 70%;
+    margin-top: 250px;
+    text-align: center;
+}
+
+.jeuDuJoueur{
+    height: 200px;
+}
+
+
+@-webkit-keyframes leaves {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes leaves {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+#clique{
+    width: 150px;
+    display: none;
+    margin: auto;
+    margin-top: 160px;
+
+    -webkit-transform-origin: 0 0;
+    -ms-transform-origin: 0 0;
+    transform-origin: 0 0;
+    
+    -webkit-animation: leaves 0.2s ease-in-out infinite alternate;
+    animation: leaves 0.2s ease-in-out infinite alternate;
+}
+
+#chronometre{
+    width: 150px;
+    float: right;
+}
+
+#jeu{
+    display: none;
+    width: 700px;
+    border: 1px solid black;
+    margin: auto;
+    padding: 10px;
+    background-color: #AD3D27;
+    color: white;
+    box-shadow: 1px 1px 2px 0px #505050;
+}
+
+#compteARebour{
+    margin: auto;
+    width: 275px;
+    margin-top: -150px;
+    font-size: 25px;
+    color: white;
+}
+
+
+#ligneArriver{
+    height: 175px;
+    border: 1px solid white;
+    position: absolute;
+    margin-left: 200px;
+}
+
+#joueur1{
+    display: inline-block;
+}
+
+#depart{
+    display: none;
+    position: absolute;
+    font-size: 30px;
+    font-family: fantasy;
+    margin-left: 300px;
+    width: 100px;
+    height: 100px;
+}
+
+#carteJouer{
+    width: 85px;
+    height: 100px;
+    position: relative;
+    float: left;
+    border: 1px solid black;
+    margin: 5px;
+    padding: 5px;
+    color: black;
+    background-color: white;
+    box-shadow: 1px 1px 7px black;
+    text-transform: capitalize;
+}
+
+#couleurCarteJouer{
+    font-size: 25px;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+/* #valCarteJouer{
+
+} */
+
+#valCarteJouerRotate{
+    -ms-transform: rotate(180deg); /* IE 9 */
+    -webkit-transform: rotate(180deg); /* Safari */
+    transform: rotate(180deg); /* Standard syntax */
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}
+
+#scoreCarteBanque, #scoreCarte{
+    margin: 5px;
+    padding: 5px;
+    font-weight: bold;
+    border: 1px solid black;
+    box-shadow: 1px 1px 2px 0px black;
+}
+
+#resultat{
+    position: absolute;
+    font-size: 65px;
+    margin-left: 250px;
+}
+
+/* COMMANDES */
+
+#commandes{
+    width: 300px;
+    display: none;
+    margin: auto;
+}
+
+#demarrer{
+    border: none;
+    padding: 20px;
+    background-color: #0dbf13d1;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+}
+
+#demarrer:hover{
+    background-color: #038a08d1;
+}
+
+#parti{
+    border: none;
+    padding: 20px;
+    background-color: #0dbf13d1;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+}
+
+#parti:hover{
+    background-color: #038a08d1;
+}
+
+#donneCarte{
+    border: none;
+    padding: 20px;
+    background-color: #0a9e0ffa;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;  
+    display: none;
+      
+}
+
+#donneCarte:hover{
+    background-color: #056c09fa;
+}
+
+#arreter{
+    border: none;
+    padding: 20px;
+    background-color: #ff0f0ffa;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;    
+    display: none;
+}
+
+#arreter:hover{
+    background-color: #c60202fa;
+}
+
+
+#mise{
+    width: 150px;
+    height: 50px;
+    margin-top: -20px;
+}
+
+#pari{
+    height: 20px;
+    display: none;
+}
+
+#jeton1, #jeton5, #jeton20, #jeton50, #jeton100, #jeton500 {
+    width: 22px;
+    height: 22px;
+    margin: 2px;
+    float: left;
+    border-radius: 12px;
+    border: 1px inset white;
+    text-align: center;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0px 0px 14px yellow;
+    font-weight: bold;
+    color: white;
+
+}
+
+#jeton1:hover, #jeton5:hover, #jeton20:hover, #jeton50:hover, #jeton100:hover, #jeton500:hover{
+    opacity: 0.7;
+}
+
+#jeton1{
+    background-color: #4cb3d29c; 
+}
+
+#jeton5{
+    background-color: #115dab;
+}
+
+#jeton20{
+    background-color: #ff0808;
+}
+
+#jeton50{
+    background-color: #053d77;
+}
+
+#jeton100{
+    background-color: #20dc14;
+}
+
+#jeton500{
+    background-color: #000000;
+}
+
