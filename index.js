@@ -63,7 +63,9 @@ io.on('connection', function(socket){
                                     connexion.tableauDesJoueurs = tableauDesJoueurs;
                                     connexion.username = data.username;
                                     socket.join('room')
-                                    socket.to('room').emit('connection', connexion);                                
+                                    socket.emit('connection', connexion);
+                                    socket.emit('pret', {message: 'pret', connexion: connexion});
+                                                                    
                                 }
                             });
                         }
