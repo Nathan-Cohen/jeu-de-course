@@ -2,12 +2,22 @@
 <html>
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Jeu multijoueur</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="./css/style.css">
     <script src="/socket/socket.io.js"></script>
     <script src="/lib/jquery-3.3.1.min.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
     <script>
     (function(window, io){
@@ -17,6 +27,8 @@
             var idUnique = Math.floor(Math.random()*200);     
             var boolAnimation = true;            
             var monLeft = 0;
+            var valeurLeftAjouter = 0;
+            var compteurResultFinal = 0;
 
             // ecoute l'evenement du formulaire et envoie le username au serveur et l'id unique
             document.getElementById('monForm').addEventListener('submit', function(event){
@@ -32,7 +44,8 @@
                     }
                     if(tabAvatar.length == 1){
                         socket.emit('name', {username: username, password: password, id: idUnique, avatar: avatar});                        
-                    }else if (document.getElementsByClassName('avatar')){
+                    }
+                    else if (document.getElementsByClassName('avatar')){
                         // affiche la div joueur
                         var divjoueur = document.getElementById('joueur');
                             $(divjoueur).show('slow');
@@ -45,21 +58,22 @@
             });
             // recupere les données de connexion a la base 
             socket.on('connection', function (data) {
+                var divjoueur = document.getElementById('joueur');  
+                var divJeu = document.getElementById('jeu');
+                var divConnexion = document.getElementById('divConnexion');
+
                 if(data.connecter === true){
                     ////////////////////AFFICHAGE///////////////////
                     // affiche la div de jeu
-                    var divJeu = document.getElementById('jeu');
                     $(divJeu).fadeIn('slow');                    
                     divJeu.style.display = "block";
 
                     // affiche la div du joueur
-                    var divjoueur = document.getElementById('joueur');
                     $(divjoueur).fadeIn('slow');
                     divjoueur.style.display = "block";
                     document.getElementById('nomDuJoueur').innerHTML = "Bienvenue : <strong>" + data.username + "</strong>";
 
                     // cache la div de connexion 
-                    var divConnexion = document.getElementById('divConnexion');
                     $(divConnexion).fadeOut(1000);
                     divConnexion.style.display = "none";
 
@@ -68,7 +82,6 @@
                 }
                 else{
                     // affiche la div joueur
-                    var divjoueur = document.getElementById('joueur');
                     $(divjoueur).show('slow');
                     divjoueur.style.display = "block";
                     // affiche le message si l'utilisateur est déjà pris ou si la parti est complete 
@@ -107,6 +120,7 @@
                             divAvatar.className = "avatarJoueur" + element.id;
                             divAvatar.innerHTML = "<img width='20' src='../images/" + element.avatar  + ".png' alt=''>";
                             divAvatar.style.marginTop = '50px';
+                            divAvatar.style.marginLeft = '0px';
                             divAvatar.style.position = 'absolute';
                             divTitreJoueur.appendChild(divAvatar);
                         }
@@ -115,109 +129,135 @@
             });
 
             socket.on('pret', function(data){
-                if(data.message == 'pret'){
+                avatar = document.getElementsByClassName('avatarJoueur' + data.connexion.idUnique);
+                titreJoueur = document.getElementsByClassName('titreJoueur' + data.connexion.idUnique);    
+                tempsEcoule = document.getElementById('spanChronometre'); 
+                divCompteARebour = document.getElementById('compteARebour') 
+                divJeu = document.getElementById('jeu') 
+                    // quand je le joueur 2 se connecte il active le compte a rebour pour les deux joueurs
                     if(data.connexion.tableauDesJoueurs.length == 2){
                         socket.emit('activeChrono', {idUnique: data.connexion.idUnique})
                     }
                     setTimeout(function(){
-                        document.addEventListener('keydown', function(e){
-                            if(e.keyCode == 32){  
-                                if (boolAnimation){
-                                    divCompteARebour.innerHTML = "" 
-                                        avatar = document.getElementsByClassName('avatarJoueur' + data.connexion.idUnique);
-                                        titreJoueur = document.getElementsByClassName('titreJoueur' + data.connexion.idUnique);    
-                                        tempsEcoule = document.getElementById('spanChronometre');    
-                                                                   
-                                    anim = setInterval(function(){                
-                                        monLeft = monLeft + 4;
-                                        if(monLeft < 200){
-                                            avatar[0].style.marginLeft = monLeft + 'px';                                       
-                                            socket.emit('avance', {monLeft: monLeft, idUnique: data.connexion.idUnique});
-                                        }else{
+                        
+                        function avancePerso(e){
+                            if(e.keyCode == 32){   
+                                monLeft = monLeft + valeurLeftAjouter;
+                                // si la largeur gauche de l'avatar est plus petite que la taille de la piste
+                                if(avatar[0].offsetLeft < divJeu.offsetWidth - 20){
+                                            // console.log('monLeft', monLeft)             
+                                            // console.log('divJeu.offsetWidth', divJeu.offsetWidth)             
+                                            // console.log('avatar[0]', avatar[0])             
+                                            avatar[0].style.marginLeft = monLeft + '%';                                       
+                                            socket.emit('avance', {monLeft: monLeft, idUnique: data.connexion.idUnique});     
+                                        }
+                                        else{
                                             divclique = document.getElementById('clique')
                                             divclique.style.display = 'none'
                                             socket.emit('gagnant', {idUnique: data.connexion.idUnique, tempsEcoule: tempsEcoule.innerHTML})
                                         }
-                                    }, 25)
-                                    arretAnim = setInterval(function(){
-                                        clearInterval(anim)
-                                        clearInterval(arretAnim)
-                                    }, 25)
-                                }
-                                boolAnimation = false;
                             }
-                        });
+                        };
+                        function avancePersoTactile(){            
+                                    monLeft = monLeft + valeurLeftAjouter;
+                                    divJeuDiviser = divJeu.offsetWidth * 5/100;                                    
+                                    // si la largeur gauche de l'avatar est plus petite que la taille de la piste
+                                    if(avatar[0].offsetLeft < divJeu.offsetWidth + divJeuDiviser){
+                                        avatar[0].style.marginLeft = monLeft + '%';                                       
+                                        socket.emit('avance', {monLeft: monLeft, idUnique: data.connexion.idUnique});
+                                    }
+                                    else{
+                                        divclique = document.getElementById('clique')
+                                        divclique.style.display = 'none'
+                                        socket.emit('gagnant', {idUnique: data.connexion.idUnique, tempsEcoule: tempsEcoule.innerHTML})
+                                    }
+                        };
+                        // active l'animation a l'appuis de la touche                        
+                        document.addEventListener('keydown', avancePerso)
+                        
+                        // active l'animation a l'appuis de la touche tactile                        
+                        var touchstart = document.getElementsByTagName('body')[0];                                            
+                        touchstart.addEventListener("touchstart", avancePersoTactile)
 
-                        document.addEventListener('keyup', function(e){
-                            if (e.keyCode === 32){
-                            boolAnimation = true
-                            clearInterval(anim)
-                            }
-                            
-                        })
+
                     }, 3000)
-                }
-                else{
-                    document.addEventListener('keyup', function(e){
-                        // if(e.keyCode == 32){
-                        //     alert('en attente du deuxieme joueur')
-                        // }
-                    });
-                }
+                
             });
 
             socket.on('chronometre', function(data){
-                compteARebour = 3;
+                    compteARebour = 3;
                     var tempsEcoule = 0;                    
-                    divCompteARebour = document.getElementById('compteARebour')
+                    var divCompteARebour = document.getElementById('compteARebour')
+                    divCompteARebour.style.marginTop = "-150px"                    
                     divCompteARebour.innerHTML = compteARebour;
+                    // setinterval toute les secondes pour enlever 1 au compteur et l'afficher dans la div
                     compte = setInterval(function(){
                         compteARebour--;
                         divCompteARebour.innerHTML = compteARebour;
+                        // si le compte a rebour arriver a 0 on affiche GO
                         if(compteARebour == 0){
-                            clearInterval(compte)
                             divCompteARebour.innerHTML = "GO !"
                             divclique = document.getElementById('clique')
                             divclique.style.display = 'block'
-                                    
+                            valeurLeftAjouter = 4;                                                
+                        }
+                        // si le compte a rebour arrive a -1 on stop le setinterval et on supprime le contenu de la div compte a rebour
+                        if(compteARebour < 0){
+                            clearInterval(compte)
+                            divCompteARebour.innerHTML = ""                            
                         }
                     }, 1000)
-                var tempsEcoule = 0;          
                 // active le chronometre
                 function chronometreDepart(){
+                    // setInterval sur le compteur (chronometre) pour ajouter 1 toute les secondes et l'afficher dans la div chronometre
                     intervalId = window.setInterval(function(){
                         tempsEcoule++;
                         var tempsEcouleFormate = tempsEcoule;
                         $('#chronometre span').html(tempsEcouleFormate);
                     }, 1000);
-                };                          
-                
+                };       
                 chronometreDepart();
             })
 
             socket.on('result', function(data){ 
-                divCompteARebour = document.getElementById('compteARebour')                
-                titreJoueur = document.getElementsByClassName('titreJoueur' + data.idUnique);                   
-                divCompteARebour.innerHTML = titreJoueur[0].children[0].innerHTML + " a gagner la parti !"
-                divclique = document.getElementById('clique')
-                divclique.style.display = 'none'
-                // desactive le chronometre
-                function chronometreArret(){
+                compteurResultFinal++;
+                if(compteurResultFinal == 1){
+                    divCompteARebour = document.getElementById('compteARebour')                
+                    titreJoueur = document.getElementsByClassName('titreJoueur' + data.idUnique);
+                    divCompteARebour.innerHTML = titreJoueur[0].children[0].innerHTML + " à gagné la partie !"
+                    divclique = document.getElementById('clique')
+                    divclique.style.display = 'none'
+                    valeurLeftAjouter = 0;
+                    // affiche le button restart
+                    var buttonRestart = document.getElementById('restart');
+                    buttonRestart.style.display = 'block'
+                    // desactive le chronometre
                     window.clearInterval(intervalId);
                 }
-                chronometreArret();
             });
 
             socket.on('caracPerso', function(data){
                 data.forEach(function(elementC){
                     avatar = document.getElementsByClassName('avatarJoueur' + elementC.idUnique);
-                    avatar[0].style.marginLeft = elementC.monLeft + 'px';                   
+                    avatar[0].style.marginLeft = elementC.monLeft + '%';                   
                 });
 
             });
 
-            socket.on('deconnection', function(){
-                console.log('un joueur deconnecter')
+            socket.on('deconnection', function(data){
+                if(data){
+                    // affiche un message et supprime la div du joueur parti
+                    divCompteARebour = document.getElementById('compteARebour')                
+                    titreJoueur = document.getElementsByClassName('titreJoueur' + data);  
+                    divCompteARebour.style.marginTop = '0px';
+                    divCompteARebour.style.color = 'black';  
+                    divCompteARebour.innerHTML = titreJoueur[0].children[0].innerHTML + " à quitté la partie !"
+
+                    var divJeuDesJoueurs = document.getElementById('jeuDesJoueurs');
+                    var divJeuDuJoueur = document.getElementsByClassName('jeuDuJoueur' + data);
+                    divJeuDesJoueurs.removeChild(divJeuDuJoueur[0])
+                    
+                }
             })
 
 
@@ -282,28 +322,33 @@
             <li>
                 <button id="reglesDuJeu" class="buttonMenu">Règles du jeu</button>
             </li>
+            <li>
+                <button id="github" class="buttonMenu"><a href="https://github.com/Nathan-Cohen/jeu-de-course" target="_blank">GitHub</a></button>
+            </li>
         </ul>
 
         <!-- formulaire de connexion -->
         <form id="monForm">
-            <div>
+            <div id="containerForm">
                 <p>
                 <label>Login :</label>
                     <input type="text" name="username" id="username" placeholder="login.." required>
                 <label>Mot de passe :</label>
                     <input type="password" name="password" id="password" placeholder="password.." required>
                 <!-- <label>Avatar :</label> -->
-                <input type="radio" name="radio-freddy" id="freddy" class="avatar" />
-                <label for="freddy"><img width="20" src="../images/freddy.png" alt="" /></label>
-
-                <input type="radio" name="radio-freddy" id="batman" class="avatar" />
-                <label for="batman"><img width="20" src="../images/batman.png" alt="" /></label>
-
-                <input type="radio" name="radio-freddy" id="darkvador" class="avatar" />
-                <label for="darkvador"><img width="20" src="../images/darkvador.png" alt="" /></label>
-
-                <input type="radio" name="radio-freddy" id="luke" class="avatar" />
-                <label for="luke"><img width="20" src="../images/luke.png" alt="" /></label>
+                <div>
+                    <input type="radio" name="radio-freddy" id="freddy" class="avatar" />
+                    <label for="freddy"><img width="20" src="../images/freddy.png" alt="" /></label>
+    
+                    <input type="radio" name="radio-freddy" id="batman" class="avatar" />
+                    <label for="batman"><img width="20" src="../images/batman.png" alt="" /></label>
+    
+                    <input type="radio" name="radio-freddy" id="darkvador" class="avatar" />
+                    <label for="darkvador"><img width="20" src="../images/darkvador.png" alt="" /></label>
+    
+                    <input type="radio" name="radio-freddy" id="luke" class="avatar" />
+                    <label for="luke"><img width="20" src="../images/luke.png" alt="" /></label>
+                </div>
                 </p>
             </div>
             <input type="submit">
@@ -338,7 +383,7 @@
 
     <div id="compteARebour"></div>
 
-    <div id="clique">Clique !</div>
+    <div id="clique">Cliquez sur la barre d'espace !</div>
     
 
 
@@ -350,8 +395,6 @@
         </div>
     </div>
     
-    
-    
     <!-- PARTI REGLES DU JEU -->
     <div id="afficheRegleDuJeu">
         <div id="listeDuScoreDesJoueurs" style="
@@ -360,42 +403,19 @@
             font-family:  sans-serif;
             ">
                 <h2>Règles du jeu</h2>
-            
-                <strong>But du jeu</strong>
-                <p>
-                Après avoir reçu deux cartes, le joueur tire des cartes pour s’approcher de la valeur 21 sans la dépasser. Le but du joueur est de battre le croupier en obtenant un total de points supérieur à celui-ci ou en voyant ce dernier dépasser 21. Chaque joueur joue contre le croupier, qui représente la banque, ou le casino, et non contre les autres joueurs.
-                
-                Valeurs des cartes
-                Chaque carte numérotée de 2 à 10 a sa valeur nominale (égale au numéro sur la carte)
-                Les valets, les dames et les rois (les figures), ont une valeur de 10 points
-                L’As vaut 1 point ou 11 points, au choix du joueur
-                <ul>
-                    1 : La distribution des cartes initiale
-                    Le croupier distribue deux cartes visibles à chaque joueur et ne se distribue qu’une seule carte, découverte (règle européenne sans carte cachée).
-                    
-                    Cas du blackjack
-                    Il y a blackjack lorsque le joueur reçoit 2 cartes totalisant une valeur de 21 lors de la donne initiale (un As et un 10 ou une figure). Si un joueur possède un blackjack, le croupier paiera le joueur immédiatement à 3:2 (1,5 fois la mise initiale) avant de continuer avec les autres joueurs de la table. Le joueur ayant un blackjack remportera une fois et demi sa mise initiale si le croupier n’a pas de blackjack après distribution de la seconde carte au croupier. En cas de balckjack chez le joueur et chez le croupier, la main sera déclarée nulle et aucune somme ne sera échangée.
-                </ul>
-                
-                <ul>
-                    2 : Le tour des joueurs
-                    Le croupier demande au joueur s’il souhaite une carte supplémentaire. Vous pouvez tirer (demander une carte) autant de fois que vous le souhaitez, tant que vous ne dépassez pas 21. Lorsque vous avez un total que vous trouvez satisfaisant, vous faites savoir au croupier que vous restez, et le jeu continue avec le joueur suivant. Quelques options supplémentaires existent, voici un récapitulatif de toutes les actions possibles au blackjack :
-                    
-                    Tirer une carte (en anglais : hit) : vous souhaitez prendre une autre carte, que le croupier vous distribue. Dans les parties où les cartes sont distribuées au sabot, n’oubliez pas d’indiquer au croupier d’un signe de la main que vous voulez prendre une carte ou dites "Carte". Si le joueur tire et qu’il dépasse 21, il perd sa mise.
-                    
-                    Rester (en anglais : stand) : vous restez si vous êtes satisfait de votre main, que le total est suffisant ; vous ne voulez pas de carte supplémentaire. Indiquez au croupier que vous êtes servi(e), en le lui signifiant d’un geste (horizontal) de la main (au-dessus de vos cartes) ou en disant "Reste".
-                </ul>
-                
-                <ul>
-                    3 : Le tour du croupier
-                    Le croupier est le dernier joueur à agir. Le croupier ne se sert qu’une carte, et se sert la seconde à la fin du tour des joueurs. Le croupier continue de jouer sa main comme tout joueur après le tour des joueurs. Si le croupier fait blackjack, il ramasse toutes les mises. Le croupier doit continuer de tirer jusqu’à qu’il obtienne une valeur d’au moins 17, il restera alors.
-                    
-                    Si le croupier saute, c’est-à-dire dépasse 21, tous les joueurs qui sont encore en lice gagnent. Sinon, les joueurs qui ont un total supérieur à celui du croupier gagnent et les joueurs qui ont un total inférieur perdent. En cas d’égalité, la mise du joueur est remboursée (l’argent ne change pas de main).
-                </ul>
-                
-                Une fois que toutes les mains ont été payées ou que les mises ont été encaissées, une nouvelle donne peut avoir lieu.
-                </p>
-            </div>
+            <p>
+                Il suffit de d'appuyer sur la touche 'Espace' du clavier pour avancer le joueur ayant effectuer le meilleur temp remporte la course.
+                Le temp de tout les joueurs est afficher dans la liste des scores.
+            </p>
+        </div>
     </div>
+
+    <button id="restart" onclick="restart()">Reload page</button>
+    <script>
+        function restart() {
+            location.reload();
+        }
+    </script>
+
 </body>
 </html>

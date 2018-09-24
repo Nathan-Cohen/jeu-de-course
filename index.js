@@ -53,19 +53,19 @@ io.on('connection', function(socket){
                                     console.log(err.message);
                                 } 
                                 else{ 
-                                    console.log("Nouvel utilisateur : ", data.username, data.password, data.id);
-                                    connexion.connecter = true;
-                                    connexion.idUnique = data.id;
-                                    tabjoueur.push(data.id)
-                                    connexion.avatar = data.avatar;                                                                                              
-                                    objDesJoueurs = new functionConstruc(data.id, data.username, data.avatar)
-                                    tableauDesJoueurs.push(objDesJoueurs)
-                                    connexion.tableauDesJoueurs = tableauDesJoueurs;
-                                    connexion.username = data.username;
-                                    socket.join('room')
-                                    socket.emit('connection', connexion);
-                                    socket.emit('pret', {message: 'pret', connexion: connexion});
-                                                                    
+                                        console.log("Nouvel utilisateur : ", data.username, data.password, data.id);
+                                        connexion.connecter = true;
+                                        connexion.idUnique = data.id;
+                                        socket.user = data.id;
+                                        tabjoueur.push(data.id)
+                                        connexion.avatar = data.avatar;                                                                                              
+                                        objDesJoueurs = new functionConstruc(data.id, data.username, data.avatar)
+                                        tableauDesJoueurs.push(objDesJoueurs)
+                                        connexion.tableauDesJoueurs = tableauDesJoueurs;
+                                        connexion.username = data.username;
+                                        socket.join('room')
+                                        socket.emit('connection', connexion); 
+                                        socket.emit('pret', {message: 'pret', connexion: connexion}); 
                                 }
                             });
                         }
@@ -79,8 +79,6 @@ io.on('connection', function(socket){
                                     connexion.connecter = false;
                                     connexion.messageDeConnexion = "La parti est déjà prise !"
                                     socket.emit('connection', connexion); 
-                                    
-
                                 }
                                 else{
                                     // boucle sur le tableau des joueurs déjà connecter si un utilisateur deja connecter a le meme nom il envoie un message d'erreur 
@@ -108,23 +106,25 @@ io.on('connection', function(socket){
                                         socket.join('room') 
                                         console.log(tableauDesJoueurs)
                                         socket.emit('connection', connexion);                                        
-                                        socket.emit('pret', {message: 'pret', connexion: connexion}); 
+                                        socket.emit('pret', {connexion: connexion}); 
                                         // socket.broadcast.emit('pret', {message: 'pret', connexion: tableauDesJoueurs[0]});                                                                             
                                     }
                                 }
                             }else{
-                                console.log('En attente du deuxieme joueur') 
                                 connexion.connecter = true;
                                 connexion.idUnique = o.idUnique;
+                                socket.user = o.idUnique;
                                 tabjoueur.push(o.idUnique)
                                 connexion.avatar = data.avatar;                                                                
                                 objDesJoueurs = new functionConstruc(o.idUnique, data.username, data.avatar)
                                 tableauDesJoueurs.push(objDesJoueurs)
                                 connexion.tableauDesJoueurs = tableauDesJoueurs;
                                 connexion.username = data.username;
+                                // connexion.divJeuOffsetLeft = data.
                                 socket.join('room')                           
                                 socket.emit('connection', connexion);   
-                                socket.emit('pret', {message: 'pret', connexion: connexion});
+                                socket.emit('pret', {connexion: connexion});
+
                             }
                         }
                     }
@@ -143,10 +143,11 @@ io.on('connection', function(socket){
 
     socket.on('gagnant', function(data){
         console.log('gagnant', data)
+        var tempNombre = parseFloat(data.tempsEcoule)
         var url = "mongodb://heroku_xxbnv843:m1tp1ts1p4deps3isa7f6dlcgm@ds141932.mlab.com:41932/heroku_xxbnv843";
         mongo.connect(url, {useNewUrlParser: true}, function (err, client) {
             var collection = client.db('heroku_xxbnv843').collection('joueurs');
-            collection.updateOne({'idUnique': data.idUnique}, {$set: {'temp': data.tempsEcoule}}, function(err, result){
+            collection.updateOne({'idUnique': data.idUnique}, {$set: {'temp': tempNombre}}, function(err, result){
                 if(result){
                     io.to('room').emit('result', {message: 'Win', idUnique: data.idUnique})                  
                     // console.log('result', result)
@@ -161,12 +162,13 @@ io.on('connection', function(socket){
     });
 
     socket.on('avance', function(data){
+        console.log('avance', data)
         tableauPerso.push(data);  
         io.to('room').emit('caracPerso', tableauPerso)  
     })
 
     socket.on('activeChrono', function(data){
-        io.emit('chronometre', data)
+        io.to('room').emit('chronometre', data)
     })
 
      ////////////PARTI SCORE DES JOUEURS////////////
@@ -174,7 +176,7 @@ io.on('connection', function(socket){
         var url = "mongodb://heroku_xxbnv843:m1tp1ts1p4deps3isa7f6dlcgm@ds141932.mlab.com:41932/heroku_xxbnv843";
             mongo.connect(url, {useNewUrlParser: true}, function (err, client) {
                 var collection = client.db('heroku_xxbnv843').collection('joueurs');
-                collection.find().toArray(function(err, result) {
+                collection.find().sort({ temp : 1}).toArray(function(err, result) {
                     if (err) {
                         console.log(err.message);
                     }else{
@@ -185,9 +187,13 @@ io.on('connection', function(socket){
             });
     });
 
+     ////////////PARTI DECONNEXION////////////
     socket.on("disconnect", function(){
-        socket.to('room').broadcast.emit('deconnection')
-        console.log("client disconnected from server", );
+        tableauPerso = []
+        tableauDesJoueurs.pop();
+        tableauDesJoueurs.pop();
+        socket.to('room').broadcast.emit('deconnection', socket.user)
+        socket.leave('room');
     });
     
 });
