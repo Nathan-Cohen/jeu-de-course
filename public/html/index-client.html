@@ -29,6 +29,40 @@
             var monLeft = 0;
             var valeurLeftAjouter = 0;
             var compteurResultFinal = 0;
+            var timerChronometreBool = false
+            // active le chronometre
+            function chrono(){
+                if(timerChronometreBool){
+                    end = new Date()
+                    diff = end - start
+                    diff = new Date(diff)
+                    var msec = diff.getMilliseconds()
+                    var sec = diff.getSeconds()
+                    var min = diff.getMinutes()
+                    if (min < 10){
+                        min = "0" + min
+                    }
+                    if (sec < 10){
+                        sec = "0" + sec
+                    }
+                    if(msec < 10){
+                        msec = "00" +msec
+                    }
+                    else if(msec < 100){
+                        msec = "0" +msec
+                    }
+                    document.getElementById("spanChronometre").innerHTML = min + ":" + sec + ":" + msec
+                    timerChronometre = setInterval(chrono, 10)
+
+                }
+            }
+                            
+            if(window.innerHeight > window.innerWidth){
+                alert("Mettre le mode paysage");
+            }else{
+                
+            }
+
 
             // ecoute l'evenement du formulaire et envoie le username au serveur et l'id unique
             document.getElementById('monForm').addEventListener('submit', function(event){
@@ -144,11 +178,8 @@
                             if(e.keyCode == 32){   
                                 monLeft = monLeft + valeurLeftAjouter;
                                 // si la largeur gauche de l'avatar est plus petite que la taille de la piste
-                                if(avatar[0].offsetLeft < divJeu.offsetWidth - 20){
-                                            // console.log('monLeft', monLeft)             
-                                            // console.log('divJeu.offsetWidth', divJeu.offsetWidth)             
-                                            // console.log('avatar[0]', avatar[0])             
-                                            avatar[0].style.marginLeft = monLeft + '%';                                       
+                                if(avatar[0].offsetLeft < divJeu.offsetWidth - 30){     
+                                            // avatar[0].style.marginLeft = monLeft + '%';                                       
                                             socket.emit('avance', {monLeft: monLeft, idUnique: data.connexion.idUnique});     
                                         }
                                         else{
@@ -169,6 +200,7 @@
                                     else{
                                         divclique = document.getElementById('clique')
                                         divclique.style.display = 'none'
+                                        console.log('GAGNANT')                                        
                                         socket.emit('gagnant', {idUnique: data.connexion.idUnique, tempsEcoule: tempsEcoule.innerHTML})
                                     }
                         };
@@ -190,6 +222,7 @@
                     var divCompteARebour = document.getElementById('compteARebour')
                     divCompteARebour.style.marginTop = "-150px"                    
                     divCompteARebour.innerHTML = compteARebour;
+
                     // setinterval toute les secondes pour enlever 1 au compteur et l'afficher dans la div
                     compte = setInterval(function(){
                         compteARebour--;
@@ -202,38 +235,29 @@
                             valeurLeftAjouter = 4;                                                
                         }
                         // si le compte a rebour arrive a -1 on stop le setinterval et on supprime le contenu de la div compte a rebour
-                        if(compteARebour < 0){
+                        if(compteARebour <= 0){
                             clearInterval(compte)
-                            divCompteARebour.innerHTML = ""                            
+                            divCompteARebour.innerHTML = ""
+                            // active le chronometre
+                            timerChronometreBool = true
+                            start = new Date()                            
+                            chrono();                                                        
                         }
-                    }, 1000)
-                // active le chronometre
-                function chronometreDepart(){
-                    // setInterval sur le compteur (chronometre) pour ajouter 1 toute les secondes et l'afficher dans la div chronometre
-                    intervalId = window.setInterval(function(){
-                        tempsEcoule++;
-                        var tempsEcouleFormate = tempsEcoule;
-                        $('#chronometre span').html(tempsEcouleFormate);
-                    }, 1000);
-                };       
-                chronometreDepart();
+                    }, 1000)    
             })
 
             socket.on('result', function(data){ 
-                compteurResultFinal++;
-                if(compteurResultFinal == 1){
-                    divCompteARebour = document.getElementById('compteARebour')                
-                    titreJoueur = document.getElementsByClassName('titreJoueur' + data.idUnique);
-                    divCompteARebour.innerHTML = titreJoueur[0].children[0].innerHTML + " à gagné la partie !"
-                    divclique = document.getElementById('clique')
-                    divclique.style.display = 'none'
-                    valeurLeftAjouter = 0;
-                    // affiche le button restart
-                    var buttonRestart = document.getElementById('restart');
-                    buttonRestart.style.display = 'block'
-                    // desactive le chronometre
-                    window.clearInterval(intervalId);
-                }
+                divCompteARebour = document.getElementById('compteARebour')                
+                titreJoueur = document.getElementsByClassName('titreJoueur' + data.idUnique);
+                divCompteARebour.innerHTML = titreJoueur[0].children[0].innerHTML + " à gagné la partie !"
+                divclique = document.getElementById('clique')
+                divclique.style.display = 'none'
+                valeurLeftAjouter = 0;
+                // affiche le button restart
+                var buttonRestart = document.getElementById('restart');
+                buttonRestart.style.display = 'block'
+                // desactive le chronometre
+                timerChronometreBool = false
             });
 
             socket.on('caracPerso', function(data){
@@ -280,8 +304,9 @@
                 var monForm = document.getElementById('monForm');
                 monForm.style.display = 'none';
                 afficheRegleDuJeu.style.display = 'none'                
-                socket.emit('demandeLesScoresDesJoueurs', {test: 'test'})
+                socket.emit('demandeLesScoresDesJoueurs')
                 socket.on('afficheLesScoresDesJoueurs', function(data){
+                    data.sort();
                     var afficheScoresDesJoueurs = document.getElementById('afficheScoresDesJoueurs')                
                     $(afficheScoresDesJoueurs).empty();
                     divScoresDesJoueurs.style.display = 'block'

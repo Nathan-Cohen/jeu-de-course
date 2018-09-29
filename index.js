@@ -28,6 +28,7 @@ var tableauDesJoueurs = []
 var tabjoueur = [];
 var tableauPerso = [];
 var connexion = {connecter: false, username: ''}
+var tabGagnant = []
 function functionConstruc(id, name, avatar){
     this.id = id;
     this.name = name;
@@ -142,23 +143,25 @@ io.on('connection', function(socket){
     });
 
     socket.on('gagnant', function(data){
-        console.log('gagnant', data)
-        var tempNombre = parseFloat(data.tempsEcoule)
-        var url = "mongodb://heroku_xxbnv843:m1tp1ts1p4deps3isa7f6dlcgm@ds141932.mlab.com:41932/heroku_xxbnv843";
-        mongo.connect(url, {useNewUrlParser: true}, function (err, client) {
-            var collection = client.db('heroku_xxbnv843').collection('joueurs');
-            collection.updateOne({'idUnique': data.idUnique}, {$set: {'temp': tempNombre}}, function(err, result){
-                if(result){
-                    io.to('room').emit('result', {message: 'Win', idUnique: data.idUnique})                  
-                    // console.log('result', result)
-                    
-                }
-                else{
-                    console.log('err', err)
-                }
-            })
-
-        });        
+        tabGagnant.push(data)
+        // empeche le deuxieme joueur d'envoyer sont resultat
+        if(tabGagnant.length < 2){
+            console.log('gagnant', data)
+            var tempNombre = data.tempsEcoule
+            console.log('tempNombre', tempNombre)
+            var url = "mongodb://heroku_xxbnv843:m1tp1ts1p4deps3isa7f6dlcgm@ds141932.mlab.com:41932/heroku_xxbnv843";
+            mongo.connect(url, {useNewUrlParser: true}, function (err, client) {
+                var collection = client.db('heroku_xxbnv843').collection('joueurs');
+                collection.updateOne({'idUnique': data.idUnique}, {$set: {'temp': tempNombre}}, function(err, result){
+                    if(result){
+                        io.to('room').emit('result', {message: 'Win', idUnique: data.idUnique})    
+                    }
+                    else{
+                        console.log('err', err)
+                    }
+                })
+            });    
+        }
     });
 
     socket.on('avance', function(data){
@@ -190,6 +193,7 @@ io.on('connection', function(socket){
      ////////////PARTI DECONNEXION////////////
     socket.on("disconnect", function(){
         tableauPerso = []
+        tabGagnant.pop();
         tableauDesJoueurs.pop();
         tableauDesJoueurs.pop();
         socket.to('room').broadcast.emit('deconnection', socket.user)

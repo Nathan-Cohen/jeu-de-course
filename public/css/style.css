@@ -26,12 +26,13 @@ body{
 
 #divConnexion{
     margin: auto;
-    width: 190px;
+    width: 40%;
 }
 
 #divConnexion input[type="text"], #password{
     padding: 10px;
     border: 1px solid black;
+    width: 100%;
 }
 
 #divConnexion input[type="submit"]{
@@ -44,6 +45,7 @@ body{
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
+    width: 100%;
 }
 
 #divConnexion input[type="submit"]:hover{
@@ -58,15 +60,32 @@ body{
    opacity: 0.7;
 }
 
+#restart{
+    display: none;
+    margin: auto;
+    margin-top: 160px;
+    width: 150px;
+    border: none;
+    background-color: #f29e16;
+}
+
+#restart:hover{
+    background-color: #c77c05;
+    
+}
+
 #menu{
     list-style-type: none;
-    margin-left: -85px;
-    position: absolute;
+    display: contents;
 }
 
 #menu li{
     float: left;
-    margin-right: 20px;
+    margin: 5px;
+}
+
+#containerForm{
+    float: left;
 }
 
 #divScoresDesJoueurs{
@@ -125,11 +144,12 @@ body{
 #chronometre{
     width: 150px;
     float: right;
+    margin-right: 4%;
 }
 
 #jeu{
     display: none;
-    width: 700px;
+    width: 95%;
     border: 1px solid black;
     margin: auto;
     padding: 10px;
@@ -148,14 +168,10 @@ body{
 
 
 #ligneArriver{
-    height: 175px;
+    height: 165px;
     border: 1px solid white;
     position: absolute;
-    margin-left: 200px;
-}
-
-#joueur1{
-    display: inline-block;
+    margin-left: 90%;
 }
 
 #depart{
@@ -168,169 +184,10 @@ body{
     height: 100px;
 }
 
-#carteJouer{
-    width: 85px;
-    height: 100px;
-    position: relative;
-    float: left;
-    border: 1px solid black;
-    margin: 5px;
-    padding: 5px;
-    color: black;
-    background-color: white;
-    box-shadow: 1px 1px 7px black;
-    text-transform: capitalize;
-}
-
-#couleurCarteJouer{
-    font-size: 25px;
-    text-align: center;
-    word-wrap: break-word;
-}
-
-/* #valCarteJouer{
-
-} */
-
-#valCarteJouerRotate{
-    -ms-transform: rotate(180deg); /* IE 9 */
-    -webkit-transform: rotate(180deg); /* Safari */
-    transform: rotate(180deg); /* Standard syntax */
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-}
-
-#scoreCarteBanque, #scoreCarte{
-    margin: 5px;
-    padding: 5px;
-    font-weight: bold;
-    border: 1px solid black;
-    box-shadow: 1px 1px 2px 0px black;
-}
 
 #resultat{
     position: absolute;
     font-size: 65px;
     margin-left: 250px;
-}
-
-/* COMMANDES */
-
-#commandes{
-    width: 300px;
-    display: none;
-    margin: auto;
-}
-
-#demarrer{
-    border: none;
-    padding: 20px;
-    background-color: #0dbf13d1;
-    font-weight: bold;
-    color: white;
-    cursor: pointer;
-}
-
-#demarrer:hover{
-    background-color: #038a08d1;
-}
-
-#parti{
-    border: none;
-    padding: 20px;
-    background-color: #0dbf13d1;
-    font-weight: bold;
-    color: white;
-    cursor: pointer;
-}
-
-#parti:hover{
-    background-color: #038a08d1;
-}
-
-#donneCarte{
-    border: none;
-    padding: 20px;
-    background-color: #0a9e0ffa;
-    font-weight: bold;
-    color: white;
-    cursor: pointer;  
-    display: none;
-      
-}
-
-#donneCarte:hover{
-    background-color: #056c09fa;
-}
-
-#arreter{
-    border: none;
-    padding: 20px;
-    background-color: #ff0f0ffa;
-    font-weight: bold;
-    color: white;
-    cursor: pointer;    
-    display: none;
-}
-
-#arreter:hover{
-    background-color: #c60202fa;
-}
-
-
-#mise{
-    width: 150px;
-    height: 50px;
-    margin-top: -20px;
-}
-
-#pari{
-    height: 20px;
-    display: none;
-}
-
-#jeton1, #jeton5, #jeton20, #jeton50, #jeton100, #jeton500 {
-    width: 22px;
-    height: 22px;
-    margin: 2px;
-    float: left;
-    border-radius: 12px;
-    border: 1px inset white;
-    text-align: center;
-    font-size: 14px;
-    cursor: pointer;
-    box-shadow: 0px 0px 14px yellow;
-    font-weight: bold;
-    color: white;
-
-}
-
-#jeton1:hover, #jeton5:hover, #jeton20:hover, #jeton50:hover, #jeton100:hover, #jeton500:hover{
-    opacity: 0.7;
-}
-
-#jeton1{
-    background-color: #4cb3d29c; 
-}
-
-#jeton5{
-    background-color: #115dab;
-}
-
-#jeton20{
-    background-color: #ff0808;
-}
-
-#jeton50{
-    background-color: #053d77;
-}
-
-#jeton100{
-    background-color: #20dc14;
-}
-
-#jeton500{
-    background-color: #000000;
 }
 
